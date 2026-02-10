@@ -1,0 +1,79 @@
+version: "3.8"
+
+services:
+  metabase:
+    image: metabase/metabase:latest
+    container_name: aramorais-metabase
+    hostname: metabase
+    restart: unless-stopped
+
+    environment:
+      MB_DB_TYPE: postgres
+      MB_DB_DBNAME: metabase
+      MB_DB_PORT: 5432
+      MB_DB_USER: metabase
+      MB_DB_PASS: ${METABASE_DB_PASSWORD}
+      MB_DB_HOST: postgres
+
+      MB_SITE_NAME: "Aramorais Analytics"
+      MB_SITE_LOCALE: pt
+      MB_EMAIL_FROM_ADDRESS: noreply@aramorais.com.br
+      MB_EMBEDDING_SECRET_KEY: ${METABASE_SECRET_KEY}
+
+    ports:
+      - "3000:3000"
+
+    volumes:
+      - metabase_data:/metabase-data
+      - ./metabase-config:/config
+
+    networks:
+      - analytics-network
+      - wordpress-network
+
+    depends_on:
+      - postgres
+
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  postgres:
+    image: postgres:15
+    container_name: metabase-postgres
+    restart: unless-stopped
+
+    environment:
+      POSTGRES_DB: metabase
+      POSTGRES_USER: metabase
+      POSTGRES_PASSWORD: ${METABASE_DB_PASSWORD}
+      PGDATA: /var/lib/postgresql/data/pgdata
+
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./postgres-init:/docker-entrypoint-initdb.d
+
+    networks:
+      - analytics-network
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U metabase"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  metabase_data:
+  postgres_data:
+
+networks:
+  analytics-network:
+    driver: bridge
+
+  wordpress-network:
+    external: true
+    name: aramorais-wp_default
+
+
