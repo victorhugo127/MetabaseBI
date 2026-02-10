@@ -67,3 +67,43 @@ METABASE_SECRET_KEY=your_secret_key_here
 Start containers:
 
 docker-compose -f docker-compose.metabase.yml up -d
+
+Metabase will be available at:
+
+```bash
+http://localhost:3000
+```
+
+---
+
+## 📊 Example Dashboards
+
+Posts published per month
+
+Users registered per day
+
+Author performance
+
+Content engagement
+
+---
+
+## 🔒 Security
+
+Never commit .env file
+
+Use read-only MySQL user for Metabase
+
+Keep secrets outside repository
+
+---
+
+## 🚧 Future Improvements
+
+Add SQL views for reporting
+
+Automate dashboards provisioning
+
+Add backups and monitoring
+
+Performance optimization
